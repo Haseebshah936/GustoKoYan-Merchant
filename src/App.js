@@ -5,7 +5,11 @@ import {
   Switch,
   Redirect,
 } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  onAuthStateChanged,
+  sendEmailVerification,
+} from "firebase/auth";
 import Login from "./Components/Login";
 import { firebaseApp } from "./Firebase/config";
 import Header from "./Components/Header";
@@ -25,18 +29,27 @@ function App(props) {
 
   useEffect(() => {
     const auth = getAuth(firebaseApp);
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // if (user.emailVerified) {
-        setLogin(user);
-        // } else if (!user.emailVerified) {
-        //   alert("A verification link was sent to you Please verify your Email");
-        //   setLogin(false);
-        // }
-      } else {
-        setLogin(false);
-      }
-    });
+    try {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          if (user.emailVerified) {
+            setLogin(user);
+          } else if (!user.emailVerified) {
+            sendEmailVerification(auth.currentUser).then(() => {
+              alert(JSON.stringify(auth.currentUser));
+              alert(
+                "A verification link was sent to you Please verify your Email"
+              );
+            });
+            setLogin(false);
+          }
+        } else {
+          setLogin(false);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   });
   return (
     <loginState.Provider value={[login, setLogin]}>

@@ -11,11 +11,6 @@ import { color } from "../Style/color";
 function Header(props) {
   const [show] = useContext(showHearder);
 
-  const signOut = () => {
-    const auth = getAuth(firebaseApp);
-    auth.signOut();
-  };
-
   if (show) {
     return (
       <div>
@@ -39,13 +34,14 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 1.5rem;
+  padding-left: 1.2rem;
   z-index: 1;
+  padding: 1rem;
   background: ${color.menuBackground};
   a {
     text-decoration: none;
     color: black;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     display: flex;
     align-items: center;

@@ -41,7 +41,7 @@ function MenuBar(props) {
       <NavLink to="/store">
         <li>
           <StoreOutlinedIcon className="store" />
-          Stores
+          Orders
         </li>
       </NavLink>
       <NavLink to="/Profile">

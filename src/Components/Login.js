@@ -19,7 +19,7 @@ function Login(props) {
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          setLogin(user);
+          // setLogin(user);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -58,8 +58,12 @@ function Login(props) {
         />
         <input type="submit" value="login now" className="btn" />
         <Container>
-          <Link to="/signup">Register Now</Link>
-          <Link to="/forgotPassword">Forgot Password</Link>
+          <Link color="black" to="/signup">
+            Register Now
+          </Link>
+          <Link color="black" to="/forgotPassword">
+            Forgot Password
+          </Link>
         </Container>
       </form>
     </Wrap>
@@ -74,7 +78,9 @@ const Wrap = styled.div`
   left: 0;
   position: fixed;
   width: 100%;
-  background: url(${"/back.jpg"});
+  background: url("https://firebasestorage.googleapis.com/v0/b/gustokoyan-7a9b3.appspot.com/o/background.jpg?alt=media&token=511d702f-3d83-48fa-90df-25663f2ff4f9"),
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+
   background-position: center;
   background-size: cover;
   display: flex;
@@ -176,7 +182,7 @@ const Container = styled.div`
   margin: 1rem 0.5rem;
   align-items: center;
   a {
-    color: "black";
+    color: black;
     font-size: 1.2rem;
     margin: 0.3rem 0;
     text-decoration: underline;
