@@ -14,6 +14,8 @@ function Signup(props) {
     password: "",
     confirmPassword: "",
     details: "",
+    websiteLink: "",
+    phoneNumber: "",
   });
   const [image, setImage] = useState("");
   const hiddenFileInput = useRef("");
@@ -63,7 +65,18 @@ function Signup(props) {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="location">Email</label>
+              <label htmlFor="phoneNumber">Phone Number</label>
+              <input
+                value={account.phoneNumber}
+                id="phoneNumber"
+                onChange={handleChange}
+                name="phoneNumber"
+                type="text"
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="email">Email</label>
               <input
                 value={account.email}
                 id="email"
@@ -74,7 +87,7 @@ function Signup(props) {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="location">Password</label>
+              <label htmlFor="password">Password</label>
               <input
                 value={account.password}
                 id="password"
@@ -85,7 +98,7 @@ function Signup(props) {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="location">Confirm Password</label>
+              <label htmlFor="confirmPassword">Confirm Password</label>
               <input
                 value={account.confirmPassword}
                 id="confirmPassword"
@@ -107,7 +120,18 @@ function Signup(props) {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="location">Resturant Details</label>
+              <label htmlFor="websiteLink">Facebook Page/ Website Link</label>
+              <input
+                value={account.websiteLink}
+                id="websiteLink"
+                onChange={handleChange}
+                name="websiteLink"
+                type="url"
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="details">Resturant Details</label>
               <textarea
                 rows="8"
                 cols="50"
@@ -164,7 +188,7 @@ function Signup(props) {
 export default Signup;
 
 const Container = styled.div`
-  height: 150vh;
+  height: 200vh;
   h1 {
     margin: 2rem;
     font-size: 4rem;

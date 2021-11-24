@@ -20,13 +20,16 @@ import Products from "./Components/Products";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Profile from "./Components/Profile";
 import Order from "./Components/Order";
+import { dataMenu } from "./Components/dataMenu";
+import AddProducts from "./Components/AddProducts";
 export const loginState = createContext(false);
 export const showHearder = createContext(false);
+export const array = createContext([]);
 
 function App(props) {
   const [login, setLogin] = useState(false);
   const [show, setShow] = useState(false);
-
+  const [data, setData] = useState(dataMenu);
   useEffect(() => {
     const auth = getAuth(firebaseApp);
     try {
@@ -54,19 +57,22 @@ function App(props) {
   return (
     <loginState.Provider value={[login, setLogin]}>
       <showHearder.Provider value={[show, setShow]}>
-        <Router>
-          <Header />
-          <Switch>
-            <ProtectedRoute path="/Profile" component={Profile} />
-            <ProtectedRoute path="/store" component={Order} />
-            <ProtectedRoute path="/Products" component={Products} />
-            <Route path="/forgotPassword" component={ForgotPassword} />
-            <Route path="/signup" component={Signup} />
-            <Route path="/login" component={Login} />
-            <Redirect exact from="/" to="/Products" />
-            <Route component={NotFound} />
-          </Switch>
-        </Router>
+        <array.Provider value={[data, setData]}>
+          <Router>
+            <Header />
+            <Switch>
+              <ProtectedRoute path="/addProducts" component={AddProducts} />
+              <ProtectedRoute path="/Profile" component={Profile} />
+              <ProtectedRoute path="/store" component={Order} />
+              <ProtectedRoute path="/Products" component={Products} />
+              <Route path="/forgotPassword" component={ForgotPassword} />
+              <Route path="/signup" component={Signup} />
+              <Route path="/login" component={Login} />
+              <Redirect exact from="/" to="/Products" />
+              <Route component={NotFound} />
+            </Switch>
+          </Router>
+        </array.Provider>
       </showHearder.Provider>
     </loginState.Provider>
   );

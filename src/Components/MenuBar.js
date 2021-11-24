@@ -9,6 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { getAuth } from "@firebase/auth";
 import { firebaseApp } from "../Firebase/config";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import { AddCircleOutline } from "@mui/icons-material";
 function MenuBar(props) {
   const [first, setFirst] = useState("active");
   const [second, setSecond] = useState("");
@@ -36,6 +37,12 @@ function MenuBar(props) {
         <li>
           <LocalMallTwoToneIcon className="product" />
           Products
+        </li>
+      </NavLink>
+      <NavLink to="/addProducts">
+        <li>
+          <AddCircleOutline className="store" />
+          Add&nbsp;Item
         </li>
       </NavLink>
       <NavLink to="/store">
@@ -110,10 +117,7 @@ const BurgerNav = styled.div`
   @media (max-width: 768px) {
     clip-path: polygon(0 0, 32% 0, 32% 100%, 0 100%);
     margin: 0rem;
-    .product,
-    .store {
-      font-size: 3rem;
-    }
+
     li.active {
       .product,
       .store {
