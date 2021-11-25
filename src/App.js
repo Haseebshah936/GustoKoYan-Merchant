@@ -39,10 +39,10 @@ function App(props) {
             setLogin(user);
           } else if (!user.emailVerified) {
             sendEmailVerification(auth.currentUser).then(() => {
-              alert(JSON.stringify(auth.currentUser));
               alert(
                 "A verification link was sent to you Please verify your Email"
               );
+              auth.signOut();
             });
             setLogin(false);
           }

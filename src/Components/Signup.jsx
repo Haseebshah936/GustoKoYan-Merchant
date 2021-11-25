@@ -3,9 +3,14 @@ import styled from "styled-components";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap";
 import { color } from "../Style/color";
+import Joi from "joi";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, addDoc, collection, Timestamp } from "firebase/firestore";
+
+import { db, firebaseApp, storage } from "../Firebase/config";
+import { getDownloadURL, ref, uploadBytes } from "@firebase/storage";
 
 function Signup(props) {
-  //   return <Container></Container>;
   const [account, setAccount] = useState({
     resturantName: "",
     ownerName: "",
@@ -17,14 +22,101 @@ function Signup(props) {
     websiteLink: "",
     phoneNumber: "",
   });
+  const [errors, setErrors] = useState({
+    resturantName: "",
+    ownerName: "",
+    location: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    details: "",
+    websiteLink: "",
+    phoneNumber: "",
+    image: "",
+  });
   const [image, setImage] = useState("");
+  const schema = Joi.object({
+    ownerName: Joi.string().required().alphanum(),
+    resturantName: Joi.string().required(),
+    location: Joi.string().required().label("Location"),
+    email: Joi.string().email({ tlds: [] }).required(),
+    password: Joi.string()
+      .min(8)
+      .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
+      .required(),
+    confirmPassword: Joi.ref("password"),
+    details: Joi.string().required(),
+    websiteLink: Joi.string().required(),
+    phoneNumber: Joi.string().required(),
+    image: Joi.object().required().label("Image"),
+  });
   const hiddenFileInput = useRef("");
-  const handleSubmit = (e) => {
+
+  const UploadImage = async (ref) => {
+    return await uploadBytes(ref, image).then(() => {
+      return getDownloadURL(ref);
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (image) {
-      // alert(JSON.stringify(account));
-      // alert(URL.createObjectURL(image));
-      props.history.replace("/");
+    setErrors({
+      resturantName: "",
+      ownerName: "",
+      location: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      details: "",
+      websiteLink: "",
+      phoneNumber: "",
+      image: "",
+    });
+    const error = schema.validate({ ...account, image }, { abortEarly: false });
+    const erros = { ...errors };
+    if (error.error) {
+      for (let item of error.error.details) {
+        erros[item.path[0]] = item.message;
+      }
+      setErrors(erros);
+      console.log(error);
+    } else {
+      const auth = getAuth(firebaseApp);
+      createUserWithEmailAndPassword(auth, account.email, account.password)
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+
+          const storageRef = ref(
+            storage,
+            `merchantsImages/${user.uid}/${user.uid}`
+          );
+          UploadImage(storageRef).then(async (url) => {
+            await setDoc(doc(db, "merchants", user.uid), {
+              resturantName: account.resturantName,
+              ownerName: account.ownerName,
+              location: account.location,
+              email: account.email,
+              details: account.details,
+              websiteLink: account.websiteLink,
+              phoneNumber: account.phoneNumber,
+              activated: false,
+              creationDate: Timestamp.fromDate(new Date()),
+              image: url,
+              rating: [5],
+            });
+            await addDoc(collection(db, "merchants", user.uid, "reviews"), {
+              userId: "",
+              rating: 5,
+              message: "",
+            });
+          });
+        })
+        .then(() => {
+          props.history.replace("/");
+        })
+        .catch((error) => {
+          alert(error.code);
+        });
     }
   };
   const handleChange = ({ currentTarget: input }) => {
@@ -53,6 +145,8 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+
+            <p style={{ color: "tomato" }}>{errors.resturantName}</p>
             <div className="mb-3">
               <label htmlFor="ownername">Owner Name</label>
               <input
@@ -64,6 +158,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.ownerName}</p>
             <div className="mb-3">
               <label htmlFor="phoneNumber">Phone Number</label>
               <input
@@ -75,6 +170,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.phoneNumber}</p>
             <div className="mb-3">
               <label htmlFor="email">Email</label>
               <input
@@ -86,6 +182,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.email}</p>
             <div className="mb-3">
               <label htmlFor="password">Password</label>
               <input
@@ -97,6 +194,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.password}</p>
             <div className="mb-3">
               <label htmlFor="confirmPassword">Confirm Password</label>
               <input
@@ -108,6 +206,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.confirmPassword}</p>
             <div className="mb-3">
               <label htmlFor="location">Resturant Location</label>
               <input
@@ -119,6 +218,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.location}</p>
             <div className="mb-3">
               <label htmlFor="websiteLink">Facebook Page/ Website Link</label>
               <input
@@ -130,6 +230,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.websiteLink}</p>
             <div className="mb-3">
               <label htmlFor="details">Resturant Details</label>
               <textarea
@@ -143,6 +244,7 @@ function Signup(props) {
                 className="form-control"
               />
             </div>
+            <p style={{ color: "tomato" }}>{errors.details}</p>
           </TextInputContainer>
           <ImageInputContainer>
             <div>
@@ -150,6 +252,7 @@ function Signup(props) {
               <div className="Image">
                 {image && <img src={URL.createObjectURL(image)} alt="" />}
               </div>
+              <p style={{ color: "tomato" }}>{errors.image}</p>
               <button
                 style={{
                   display: "block",
@@ -161,7 +264,7 @@ function Signup(props) {
                 }}
                 onClick={handleClick}
               >
-                Upload a file
+                Upload Image
               </button>
               <input
                 type="file"
@@ -201,6 +304,7 @@ const Container = styled.div`
   textarea {
     font-size: 1.5rem;
     padding: 1rem;
+    text-transform: none;
   }
   input:focus,
   textarea:focus {
