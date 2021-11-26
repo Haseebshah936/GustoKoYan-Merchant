@@ -11,7 +11,7 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import Login from "./Components/Login";
-import { firebaseApp } from "./Firebase/config";
+import { db, firebaseApp } from "./Firebase/config";
 import Header from "./Components/Header";
 import Signup from "./Components/Signup";
 import ForgotPassword from "./Components/ForgotPassword";
@@ -22,6 +22,7 @@ import Profile from "./Components/Profile";
 import Order from "./Components/Order";
 import { dataMenu } from "./Components/dataMenu";
 import AddProducts from "./Components/AddProducts";
+import { collection, getDocs, query } from "@firebase/firestore";
 export const loginState = createContext(false);
 export const showHearder = createContext(false);
 export const array = createContext([]);
@@ -29,7 +30,22 @@ export const array = createContext([]);
 function App(props) {
   const [login, setLogin] = useState(false);
   const [show, setShow] = useState(false);
-  const [data, setData] = useState(dataMenu);
+  const [data, setData] = useState([]);
+  const getData = async () => {
+    const auth = getAuth(firebaseApp);
+    const q = query(
+      collection(db, "merchants", auth.currentUser.uid, "products")
+    );
+
+    let array = [];
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      array.push(doc.data());
+    });
+    return array;
+  };
+
   useEffect(() => {
     const auth = getAuth(firebaseApp);
     try {
@@ -37,12 +53,13 @@ function App(props) {
         if (user) {
           if (user.emailVerified) {
             setLogin(user);
+            getData().then((array) => setData(array));
+            setShow(true);
           } else if (!user.emailVerified) {
             sendEmailVerification(auth.currentUser).then(() => {
               alert(
                 "A verification link was sent to you Please verify your Email"
               );
-              auth.signOut();
             });
             setLogin(false);
           }

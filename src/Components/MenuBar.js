@@ -114,6 +114,11 @@ const BurgerNav = styled.div`
       padding: 1rem 0.5rem;
     }
   }
+  @media (max-width: 1024px) {
+    li {
+      font-size: 1.8rem;
+    }
+  }
   @media (max-width: 768px) {
     clip-path: polygon(0 0, 32% 0, 32% 100%, 0 100%);
     margin: 0rem;

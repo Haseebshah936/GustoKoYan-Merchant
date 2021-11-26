@@ -33,13 +33,13 @@ function Product({
       className="card"
       style={{
         width: "28rem",
-        height: "43rem",
+        height: "42rem",
       }}
     >
       <ImageContainer style={{ display: "flex", boxSizing: "border-box" }}>
         <img
           src={images[current]}
-          style={{ flex: 1, objectFit: "contain" }}
+          style={{ flex: 1, objectFit: "cover" }}
           className={`card-img-top S${id} active`}
           alt="product image"
         />
@@ -58,7 +58,7 @@ function Product({
         <h3>{title}</h3>
         <h4>{price}&nbsp;$</h4>
       </Wrap>
-      <p className="card-text ps-3 pe-3">{description}</p>
+      <p className="card-text  ps-4 pe-3">{description}</p>
     </Container>
   );
 }
@@ -67,13 +67,16 @@ export default Product;
 
 const Container = styled.div`
   p {
-    height: 10rem;
+    height: 9rem;
+    padding-top: 0.5rem;
     overflow-x: hidden;
     font-size: 1.2rem;
     text-align: justify;
+    border-top: 0.5px solid rgba(0, 0, 0, 0.2);
   }
   img {
     height: 27rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
   }
   margin-bottom: 2rem;
 `;
@@ -81,12 +84,13 @@ const Container = styled.div`
 const Wrap = styled.div`
   width: 100%;
   h3 {
+    color: ${color.primary};
     font-size: 1.6rem;
-    opacity: 0.9;
   }
   h4 {
     font-size: 1.4rem;
     opacity: 0.9;
+    color: black;
   }
   h3,
   h4 {
@@ -101,6 +105,7 @@ const Wrap = styled.div`
   color: black;
   overflow: hidden;
   padding: 1rem;
+  padding-bottom: 0.5rem;
 `;
 
 const ImageContainer = styled.div`

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import styled from "styled-components";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap";
@@ -9,6 +9,7 @@ import { doc, setDoc, addDoc, collection, Timestamp } from "firebase/firestore";
 
 import { db, firebaseApp, storage } from "../Firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "@firebase/storage";
+import { array } from "../App";
 
 function AddProducts(props) {
   const [account, setAccount] = useState({
@@ -23,6 +24,8 @@ function AddProducts(props) {
     image: "",
   });
   const [image, setImage] = useState("");
+  const [data, setData] = useContext(array);
+
   const schema = Joi.object({
     productName: Joi.string().required(),
     price: Joi.string().required().min(1),
@@ -32,6 +35,8 @@ function AddProducts(props) {
   const hiddenFileInput = useRef("");
 
   const UploadImage = async (ref) => {
+    alert(data.length);
+
     return await uploadBytes(ref, image).then(() => {
       return getDownloadURL(ref);
     });
@@ -58,12 +63,12 @@ function AddProducts(props) {
       const user = auth.currentUser;
       const storageRef = ref(
         storage,
-        `merchantsImages/${user.uid}/${user.uid}/0`
+        `merchantsImages/${user.uid}/${user.uid}/${data.length}`
       );
       UploadImage(storageRef)
         .then(async (url) => {
           await addDoc(collection(db, "merchants", user.uid, "products"), {
-            id: 0,
+            id: data.length,
             productName: account.productName,
             price: account.price,
             details: account.details,
@@ -178,7 +183,7 @@ function AddProducts(props) {
 export default AddProducts;
 
 const Container = styled.div`
-  padding-top: 12vh;
+  padding-top: 10vh;
   padding-left: 15vw;
   padding-right: 5vw;
   height: 200vh;

@@ -21,6 +21,8 @@ function Signup(props) {
     details: "",
     websiteLink: "",
     phoneNumber: "",
+    country: "",
+    city: "",
   });
   const [errors, setErrors] = useState({
     resturantName: "",
@@ -33,6 +35,8 @@ function Signup(props) {
     websiteLink: "",
     phoneNumber: "",
     image: "",
+    country: "",
+    city: "",
   });
   const [image, setImage] = useState("");
   const schema = Joi.object({
@@ -48,6 +52,8 @@ function Signup(props) {
     details: Joi.string().required(),
     websiteLink: Joi.string().required(),
     phoneNumber: Joi.string().required(),
+    country: Joi.string().required().label("Country Name"),
+    city: Joi.string().required().label("City Name"),
     image: Joi.object().required().label("Image"),
   });
   const hiddenFileInput = useRef("");
@@ -71,6 +77,8 @@ function Signup(props) {
       websiteLink: "",
       phoneNumber: "",
       image: "",
+      country: "",
+      city: "",
     });
     const error = schema.validate({ ...account, image }, { abortEarly: false });
     const erros = { ...errors };
@@ -91,7 +99,8 @@ function Signup(props) {
             `merchantsImages/${user.uid}/${user.uid}`
           );
           UploadImage(storageRef).then(async (url) => {
-            await setDoc(doc(db, "merchants", user.uid), {
+            alert(url);
+            setDoc(doc(db, "merchants", user.uid), {
               resturantName: account.resturantName,
               ownerName: account.ownerName,
               location: account.location,
@@ -100,14 +109,21 @@ function Signup(props) {
               websiteLink: account.websiteLink,
               phoneNumber: account.phoneNumber,
               activated: false,
+              city: account.city,
+              country: account.country,
               creationDate: Timestamp.fromDate(new Date()),
               image: url,
               rating: [5],
+              id: user.uid,
+            }).catch((error) => {
+              alert(error.code);
             });
-            await addDoc(collection(db, "merchants", user.uid, "reviews"), {
+            addDoc(collection(db, "merchants", user.uid, "reviews"), {
               userId: "",
               rating: 5,
               message: "",
+            }).catch((error) => {
+              alert(error.code);
             });
           });
         })
@@ -231,6 +247,30 @@ function Signup(props) {
               />
             </div>
             <p style={{ color: "tomato" }}>{errors.websiteLink}</p>
+            <div className="mb-3">
+              <label htmlFor="country">Country Name</label>
+              <input
+                value={account.country}
+                id="country"
+                onChange={handleChange}
+                name="country"
+                type="text"
+                className="form-control"
+              />
+            </div>
+            <p style={{ color: "tomato" }}>{errors.country}</p>
+            <div className="mb-3">
+              <label htmlFor="city">City Name</label>
+              <input
+                value={account.city}
+                id="city"
+                onChange={handleChange}
+                name="city"
+                type="text"
+                className="form-control"
+              />
+            </div>
+            <p style={{ color: "tomato" }}>{errors.city}</p>
             <div className="mb-3">
               <label htmlFor="details">Resturant Details</label>
               <textarea

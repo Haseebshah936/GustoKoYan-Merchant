@@ -15,7 +15,7 @@ function Header(props) {
     return (
       <div>
         <Container>
-          <Link to="/products">
+          <Link to="/Products">
             <Logo src={"/GustoKoYan_Logo.png"} />
             Resturant Name
           </Link>

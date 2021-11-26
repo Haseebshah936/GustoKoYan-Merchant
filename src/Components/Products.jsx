@@ -2,15 +2,35 @@ import React, { useContext, useEffect, useState } from "react";
 import { array, showHearder } from "../App";
 import Product from "./Product";
 import styled from "styled-components";
+import { getAuth } from "@firebase/auth";
+import { db, firebaseApp } from "../Firebase/config";
+import { collection, getDocs, query } from "@firebase/firestore";
 
 function Products(props) {
   const [show, setShow] = useContext(showHearder);
   let { innerWidth: width } = window;
   const [column, setColumn] = useState(3);
   const [data, setData] = useContext(array);
-  useEffect(() => {
-    setShow(true);
-  }, []);
+
+  // const getData = async () => {
+  //   const auth = getAuth(firebaseApp);
+  //   const q = query(
+  //     collection(db, "merchants", auth.currentUser.uid, "products")
+  //   );
+
+  //   let array = [];
+
+  //   const querySnapshot = await getDocs(q);
+  //   querySnapshot.forEach((doc) => {
+  //     array.push(doc.data());
+  //   });
+  //   return array;
+  // };
+
+  // useEffect(() => {
+  //   getData().then((array) => setData(array));
+  //   setShow(true);
+  // }, []);
   useEffect(() => {
     if (width < 400) {
       setColumn(12);
@@ -26,10 +46,10 @@ function Products(props) {
         return (
           <Wrapper key={c.id}>
             <Product
-              description={c.description}
+              description={c.details}
               id={c.id}
-              images={c.images}
-              title={c.title}
+              images={[c.image]}
+              title={c.productName}
               price={c.price}
             />
           </Wrapper>
