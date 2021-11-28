@@ -34,7 +34,7 @@ function Login(props) {
     if (login) {
       props.history.push("/products");
     }
-  });
+  }, [login]);
   return (
     <Wrap className="login-form-container">
       <i className="fas fa-times" id="form-close"></i>
@@ -78,7 +78,7 @@ const Wrap = styled.div`
   left: 0;
   position: fixed;
   width: 100%;
-  background: url("https://firebasestorage.googleapis.com/v0/b/gustokoyan-7a9b3.appspot.com/o/background.jpg?alt=media&token=511d702f-3d83-48fa-90df-25663f2ff4f9"),
+  background: url("https://firebasestorage.googleapis.com/v0/b/gustokoyan-7a9b3.appspot.com/o/background%20(4).jpg?alt=media&token=4c6442aa-3965-484b-a2e0-713b7407261c"),
     linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
 
   background-position: center;

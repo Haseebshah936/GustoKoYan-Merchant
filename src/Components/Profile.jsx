@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap";
@@ -7,22 +7,21 @@ import Joi from "joi";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import {
   doc,
-  setDoc,
   addDoc,
   collection,
-  Timestamp,
-  getDoc,
+  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 
 import { db, firebaseApp, storage } from "../Firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "@firebase/storage";
+import { profileContext } from "../App";
 
 function Profile(props) {
   const [account, setAccount] = useState({
     resturantName: "",
     ownerName: "",
     location: "",
-    email: "",
     details: "",
     websiteLink: "",
     phoneNumber: "",
@@ -33,7 +32,6 @@ function Profile(props) {
     resturantName: "",
     ownerName: "",
     location: "",
-    email: "",
     details: "",
     websiteLink: "",
     phoneNumber: "",
@@ -41,14 +39,14 @@ function Profile(props) {
     country: "",
     city: "",
   });
-  const [image, setImage] = useState({});
+  const [image, setImage] = useState("");
   const [url, setUrl] = useState("");
   const hiddenFileInput = useRef("");
+  const [profile, setProfile] = useContext(profileContext);
   const schema = Joi.object({
     ownerName: Joi.string().required().alphanum(),
     resturantName: Joi.string().required(),
     location: Joi.string().required().label("Location"),
-    email: Joi.string().email({ tlds: [] }).required(),
     details: Joi.string().required(),
     websiteLink: Joi.string().required(),
     phoneNumber: Joi.string().required(),
@@ -57,40 +55,28 @@ function Profile(props) {
     image: Joi.object().required().label("Image"),
   });
 
-  const fetchData = async () => {
-    const auth = getAuth(firebaseApp);
-    const docRef = doc(db, "merchants", auth.currentUser.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      return docSnap.data();
-    } else {
-      // doc.data() will be undefined in this case
-      console.log("No such document!");
-    }
-  };
-
   useEffect(() => {
-    fetchData().then((doc) => {
-      setAccount({
-        resturantName: doc.resturantName,
-        ownerName: doc.ownerName,
-        location: doc.location,
-        email: doc.email,
-        details: doc.details,
-        websiteLink: doc.websiteLink,
-        phoneNumber: doc.phoneNumber,
-        country: doc.country,
-        city: doc.city,
-      });
-      setUrl(doc.image);
+    setAccount({
+      resturantName: profile?.resturantName,
+      ownerName: profile?.ownerName,
+      location: profile?.location,
+      details: profile?.details,
+      websiteLink: profile?.websiteLink,
+      phoneNumber: profile?.phoneNumber,
+      country: profile?.country,
+      city: profile?.city,
     });
-  }, []);
+    setUrl(profile?.image);
+  }, [profile]);
 
   const UploadImage = async (ref) => {
-    return await uploadBytes(ref, image).then(() => {
-      return getDownloadURL(ref);
-    });
+    if (image) {
+      return await uploadBytes(ref, image).then(() => {
+        return getDownloadURL(ref);
+      });
+    } else {
+      return url;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -117,41 +103,33 @@ function Profile(props) {
       console.log(error);
     } else {
       const auth = getAuth(firebaseApp);
-      createUserWithEmailAndPassword(auth, account.email, account.password)
-        .then(async (userCredential) => {
-          const user = userCredential.user;
-
-          const storageRef = ref(
-            storage,
-            `merchantsImages/${user.uid}/${user.uid}`
-          );
-          UploadImage(storageRef).then(async (url) => {
-            alert(url);
-            setDoc(doc(db, "merchants", user.uid), {
-              resturantName: account.resturantName,
-              ownerName: account.ownerName,
-              location: account.location,
-              email: account.email,
-              details: account.details,
-              websiteLink: account.websiteLink,
-              phoneNumber: account.phoneNumber,
-              activated: false,
-              city: account.city,
-              country: account.country,
-              creationDate: Timestamp.fromDate(new Date()),
-              image: url,
-              rating: [5],
-              id: user.uid,
-            }).catch((error) => {
-              alert(error.code);
-            });
-            addDoc(collection(db, "merchants", user.uid, "reviews"), {
-              userId: "",
-              rating: 5,
-              message: "",
-            }).catch((error) => {
-              alert(error.code);
-            });
+      const user = auth.currentUser;
+      const storageRef = ref(
+        storage,
+        `merchantsImages/${user.uid}/${user.uid}`
+      );
+      UploadImage(storageRef)
+        .then(async (url) => {
+          console.log(account);
+          await updateDoc(doc(db, "merchants", user.uid), {
+            resturantName: account.resturantName,
+            ownerName: account.ownerName,
+            location: account.location,
+            details: account.details,
+            websiteLink: account.websiteLink,
+            phoneNumber: account.phoneNumber,
+            city: account.city,
+            country: account.country,
+            image: url,
+          }).catch((error) => {
+            alert(error.code);
+          });
+          addDoc(collection(db, "merchants", user.uid, "reviews"), {
+            userId: "",
+            rating: 5,
+            message: "",
+          }).catch((error) => {
+            alert(error.code);
           });
         })
         .then(() => {
@@ -213,18 +191,6 @@ function Profile(props) {
               />
             </div>
             <p style={{ color: "tomato" }}>{errors.phoneNumber}</p>
-            <div className="mb-3">
-              <label htmlFor="email">Email</label>
-              <input
-                value={account.email}
-                id="email"
-                onChange={handleChange}
-                name="email"
-                type="email"
-                className="form-control"
-              />
-            </div>
-            <p style={{ color: "tomato" }}>{errors.email}</p>
 
             <div className="mb-3">
               <label htmlFor="location">Resturant Location</label>
@@ -311,8 +277,19 @@ function Profile(props) {
                 type="file"
                 ref={hiddenFileInput}
                 onChange={(e) => {
-                  setImage(e.target.files[0]);
-                  setUrl(URL.createObjectURL(e.target.files[0]));
+                  if (e.target.files[0]?.size > 300000) {
+                    setErrors({
+                      ...errors,
+                      image: "Image size can not be more then 300KB",
+                    });
+                  } else {
+                    setErrors({
+                      ...errors,
+                      image: "",
+                    });
+                    setImage(e.target.files[0]);
+                    setUrl(URL.createObjectURL(e.target.files[0]));
+                  }
                 }}
                 style={{ display: "none" }}
                 accept={".jpg, .png"}

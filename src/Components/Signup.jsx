@@ -5,7 +5,13 @@ import "bootstrap/dist/js/bootstrap";
 import { color } from "../Style/color";
 import Joi from "joi";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, addDoc, collection, Timestamp } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  addDoc,
+  collection,
+  serverTimestamp,
+} from "firebase/firestore";
 
 import { db, firebaseApp, storage } from "../Firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "@firebase/storage";
@@ -111,7 +117,7 @@ function Signup(props) {
               activated: false,
               city: account.city,
               country: account.country,
-              creationDate: Timestamp.fromDate(new Date()),
+              creationDate: serverTimestamp(),
               image: url,
               rating: [5],
               id: user.uid,
@@ -310,7 +316,18 @@ function Signup(props) {
                 type="file"
                 ref={hiddenFileInput}
                 onChange={(e) => {
-                  setImage(e.target.files[0]);
+                  if (e.target.files[0]?.size > 300000) {
+                    setErrors({
+                      ...errors,
+                      image: "Image size can not be more then 300KB",
+                    });
+                  } else {
+                    setErrors({
+                      ...errors,
+                      image: "",
+                    });
+                    setImage(e.target.files[0]);
+                  }
                 }}
                 style={{ display: "none" }}
                 accept={".jpg, .png"}

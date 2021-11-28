@@ -6,6 +6,7 @@ import { color } from "../Style/color";
 
 import ArrowBackIosOutlinedIcon from "@mui/icons-material/ArrowBackIosOutlined";
 import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 function Product({
   id = "",
@@ -15,7 +16,7 @@ function Product({
   description = "",
   price = "",
 
-  handleClick = () => {},
+  deleteProduct = () => {},
 }) {
   const [current, setCurrent] = useState(0);
   const renderImages = (value) => {
@@ -59,6 +60,55 @@ function Product({
         <h4>{price}&nbsp;$</h4>
       </Wrap>
       <p className="card-text  ps-4 pe-3">{description}</p>
+      <DeleteIcon
+        style={{
+          color: "tomato",
+          position: "absolute",
+          right: 5,
+          top: 5,
+          cursor: "pointer",
+        }}
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModal"
+        id="DeleteIcon"
+      />
+
+      <div
+        className="modal fade"
+        id="exampleModal"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">
+                Confirmation
+              </h5>
+            </div>
+            <div className="modal-body">
+              Are you sure you want to delete this Item?
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-warning"
+                onClick={() => deleteProduct(id)}
+                data-bs-dismiss="modal"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </Container>
   );
 }
@@ -66,6 +116,7 @@ function Product({
 export default Product;
 
 const Container = styled.div`
+  position: realtive;
   p {
     height: 9rem;
     padding-top: 0.5rem;
@@ -77,6 +128,12 @@ const Container = styled.div`
   img {
     height: 27rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  }
+  #DeleteIcon {
+    font-size: 3rem;
+  }
+  #DeleteIcon:hover {
+    font-size: 3.5rem;
   }
   margin-bottom: 2rem;
 `;

@@ -1,11 +1,11 @@
 import React, { useContext, useRef, useState } from "react";
 import styled from "styled-components";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap";
+// import "bootstrap/dist/js/bootstrap";
 import { color } from "../Style/color";
 import Joi from "joi";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, addDoc, collection, Timestamp } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 import { db, firebaseApp, storage } from "../Firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "@firebase/storage";
@@ -35,8 +35,6 @@ function AddProducts(props) {
   const hiddenFileInput = useRef("");
 
   const UploadImage = async (ref) => {
-    alert(data.length);
-
     return await uploadBytes(ref, image).then(() => {
       return getDownloadURL(ref);
     });
@@ -61,18 +59,26 @@ function AddProducts(props) {
     } else {
       const auth = getAuth(firebaseApp);
       const user = auth.currentUser;
+      let id;
+      if (data.length) {
+        id = data[data.length - 1].id + 1;
+      } else {
+        id = 0;
+      }
       const storageRef = ref(
         storage,
-        `merchantsImages/${user.uid}/${user.uid}/${data.length}`
+        `merchantsImages/${user.uid}/${user.uid}/${id}`
       );
+
       UploadImage(storageRef)
         .then(async (url) => {
+          console.log(url);
           await addDoc(collection(db, "merchants", user.uid, "products"), {
-            id: data.length,
+            id,
             productName: account.productName,
             price: account.price,
             details: account.details,
-            creationDate: Timestamp.fromDate(new Date()),
+            creationDate: serverTimestamp(),
             image: url,
           });
         })
@@ -162,10 +168,21 @@ function AddProducts(props) {
                 type="file"
                 ref={hiddenFileInput}
                 onChange={(e) => {
-                  setImage(e.target.files[0]);
+                  if (e.target.files[0]?.size > 100000) {
+                    setErrors({
+                      ...errors,
+                      image: "Image size can not be more then 100KB",
+                    });
+                  } else {
+                    setErrors({
+                      ...errors,
+                      image: "",
+                    });
+                    setImage(e.target.files[0]);
+                  }
                 }}
                 style={{ display: "none" }}
-                accept={".jpg, .png"}
+                accept={".jpg, .png, .jpeg"}
               />
             </div>
           </ImageInputContainer>
