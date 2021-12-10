@@ -13,6 +13,7 @@ import {
   query,
   where,
   deleteDoc,
+  updateDoc,
 } from "@firebase/firestore";
 import { deleteObject, ref } from "@firebase/storage";
 
@@ -63,6 +64,15 @@ function Products(props) {
     }
   };
 
+  const handleAvailabilty = (pid, availabilty) => {
+    getData(pid).then(async (id) => {
+      const ref = doc(db, "merchants", auth.currentUser.uid, "products", id);
+      await updateDoc(ref, {
+        available: !availabilty,
+      });
+    });
+  };
+
   return (
     <Wrap>
       <Container>
@@ -76,6 +86,8 @@ function Products(props) {
                 title={c.productName}
                 price={c.price}
                 deleteProduct={handleDeleteProduct}
+                avaliable={c.available}
+                avaliabilty={handleAvailabilty}
               />
             </Wrapper>
           );

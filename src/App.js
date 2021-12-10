@@ -31,6 +31,7 @@ import {
   orderBy,
   query,
 } from "@firebase/firestore";
+import Approval from "./Components/Approval";
 export const loginState = createContext(false);
 export const showHearder = createContext(false);
 export const array = createContext([]);
@@ -113,6 +114,7 @@ function App(props) {
                 <ProtectedRoute path="/Profile" component={Profile} />
                 <ProtectedRoute path="/store" component={Order} />
                 <ProtectedRoute path="/Products" component={Products} />
+                <Route path="/approval" component={Approval} />
                 <Route path="/forgotPassword" component={ForgotPassword} />
                 <Route path="/signup" component={Signup} />
                 <Route path="/login" component={Login} />

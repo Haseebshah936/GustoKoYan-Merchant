@@ -155,7 +155,7 @@ function Profile(props) {
         <Wrapper>
           <TextInputContainer>
             <div className="mb-3">
-              <label htmlFor="resturantname">Resturant Name</label>
+              <label htmlFor="resturantname">Resturant Name - Branch</label>
               <input
                 value={account.resturantName}
                 onChange={handleChange}
@@ -168,7 +168,7 @@ function Profile(props) {
 
             <p style={{ color: "tomato" }}>{errors.resturantName}</p>
             <div className="mb-3">
-              <label htmlFor="ownername">Owner Name</label>
+              <label htmlFor="ownername">Owner's Complete Name</label>
               <input
                 value={account.ownerName}
                 id="ownerName"
@@ -217,7 +217,7 @@ function Profile(props) {
             </div>
             <p style={{ color: "tomato" }}>{errors.websiteLink}</p>
             <div className="mb-3">
-              <label htmlFor="country">Country Name</label>
+              <label htmlFor="country">Town</label>
               <input
                 value={account.country}
                 id="country"
@@ -229,7 +229,7 @@ function Profile(props) {
             </div>
             <p style={{ color: "tomato" }}>{errors.country}</p>
             <div className="mb-3">
-              <label htmlFor="city">City Name</label>
+              <label htmlFor="city">City</label>
               <input
                 value={account.city}
                 id="city"
@@ -257,7 +257,7 @@ function Profile(props) {
           </TextInputContainer>
           <ImageInputContainer>
             <div>
-              <h3>Resturant Banner</h3>
+              <h3>Company/Resturant's Logo</h3>
               <div className="Image">{url && <img src={url} alt="" />}</div>
               <p style={{ color: "tomato" }}>{errors.image}</p>
               <button

@@ -119,7 +119,7 @@ function Signup(props) {
               country: account.country,
               creationDate: serverTimestamp(),
               image: url,
-              rating: [5],
+              rating: 5,
               id: user.uid,
             }).catch((error) => {
               alert(error.code);
@@ -157,7 +157,7 @@ function Signup(props) {
         <Wrapper>
           <TextInputContainer>
             <div className="mb-3">
-              <label htmlFor="resturantname">Resturant Name</label>
+              <label htmlFor="resturantname">Resturant Name - Branch</label>
               <input
                 value={account.resturantName}
                 onChange={handleChange}
@@ -170,7 +170,7 @@ function Signup(props) {
 
             <p style={{ color: "tomato" }}>{errors.resturantName}</p>
             <div className="mb-3">
-              <label htmlFor="ownername">Owner Name</label>
+              <label htmlFor="ownername">Owner's Complete Name</label>
               <input
                 value={account.ownerName}
                 id="ownerName"
@@ -254,7 +254,7 @@ function Signup(props) {
             </div>
             <p style={{ color: "tomato" }}>{errors.websiteLink}</p>
             <div className="mb-3">
-              <label htmlFor="country">Country Name</label>
+              <label htmlFor="country">Town</label>
               <input
                 value={account.country}
                 id="country"
@@ -266,7 +266,7 @@ function Signup(props) {
             </div>
             <p style={{ color: "tomato" }}>{errors.country}</p>
             <div className="mb-3">
-              <label htmlFor="city">City Name</label>
+              <label htmlFor="city">City</label>
               <input
                 value={account.city}
                 id="city"
@@ -294,7 +294,7 @@ function Signup(props) {
           </TextInputContainer>
           <ImageInputContainer>
             <div>
-              <h3>Resturant Banner</h3>
+              <h3>Company/Resturant's Logo</h3>
               <div className="Image">
                 {image && <img src={URL.createObjectURL(image)} alt="" />}
               </div>
@@ -316,10 +316,10 @@ function Signup(props) {
                 type="file"
                 ref={hiddenFileInput}
                 onChange={(e) => {
-                  if (e.target.files[0]?.size > 300000) {
+                  if (e.target.files[0]?.size > 200000) {
                     setErrors({
                       ...errors,
-                      image: "Image size can not be more then 300KB",
+                      image: "Image size can not be more then 200KB",
                     });
                   } else {
                     setErrors({

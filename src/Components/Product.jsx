@@ -15,8 +15,10 @@ function Product({
   title = "",
   description = "",
   price = "",
+  avaliable,
 
   deleteProduct = () => {},
+  avaliabilty = () => {},
 }) {
   const [current, setCurrent] = useState(0);
   const renderImages = (value) => {
@@ -34,7 +36,7 @@ function Product({
       className="card"
       style={{
         width: "28rem",
-        height: "42rem",
+        height: "44rem",
       }}
     >
       <ImageContainer style={{ display: "flex", boxSizing: "border-box" }}>
@@ -57,9 +59,14 @@ function Product({
       </ImageContainer>
       <Wrap>
         <h3>{title}</h3>
-        <h4>{price}&nbsp;$</h4>
+        <h4>₱&nbsp;{price}</h4>
       </Wrap>
       <p className="card-text  ps-4 pe-3">{description}</p>
+      <BtnAvaliabliltyConatiner>
+        <button onClick={() => avaliabilty(id, avaliable)}>
+          {avaliable ? "Make Not Available" : "Make Available"}
+        </button>
+      </BtnAvaliabliltyConatiner>
       <DeleteIcon
         style={{
           color: "tomato",
@@ -67,15 +74,18 @@ function Product({
           right: 5,
           top: 5,
           cursor: "pointer",
+          background: "white",
+          padding: ".5rem",
+          borderRadius: "2rem",
         }}
         data-bs-toggle="modal"
-        data-bs-target="#exampleModal"
+        data-bs-target={`#icon${id}`}
         id="DeleteIcon"
       />
 
       <div
         className="modal fade"
-        id="exampleModal"
+        id={`icon${id}`}
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
@@ -181,5 +191,21 @@ const ButtonContainer = styled.div`
     height: 5rem;
     color: white;
     cursor: pointer;
+  }
+`;
+
+const BtnAvaliabliltyConatiner = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.5rem 1rem;
+  button {
+    padding: 1rem 1.5rem;
+    background: tomato;
+    border-radius: 0.5rem;
+    color: white;
+    fontweight: bold;
+  }
+  button:hover {
+    opacity: 0.9;
   }
 `;

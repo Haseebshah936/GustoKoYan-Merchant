@@ -4,12 +4,13 @@ import { withRouter } from "react-router";
 import { Link } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { firebaseApp } from "../Firebase/config";
-import { showHearder } from "../App";
+import { profileContext, showHearder } from "../App";
 import MenuBar from "./MenuBar";
 import { color } from "../Style/color";
 
 function Header(props) {
   const [show] = useContext(showHearder);
+  const [profile] = useContext(profileContext);
 
   if (show) {
     return (
@@ -17,7 +18,7 @@ function Header(props) {
         <Container>
           <Link to="/Products">
             <Logo src={"/GustoKoYan_Logo.png"} />
-            Resturant Name
+            {profile.resturantName}
           </Link>
         </Container>
         <MenuBar />

@@ -63,7 +63,7 @@ function AddProducts(props) {
       if (data.length) {
         id = data[data.length - 1].id + 1;
       } else {
-        id = 0;
+        id = 1;
       }
       const storageRef = ref(
         storage,
@@ -80,6 +80,7 @@ function AddProducts(props) {
             details: account.details,
             creationDate: serverTimestamp(),
             image: url,
+            available: true,
           });
         })
         .then(() => {
