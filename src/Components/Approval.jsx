@@ -1,7 +1,9 @@
+import { getAuth } from "firebase/auth";
 import React, { useContext, useEffect, useState } from "react";
 import { withRouter } from "react-router";
 import styled from "styled-components";
 import { loginState, profileContext, showHearder } from "../App";
+import { firebaseApp } from "../Firebase/config";
 
 function Approval(props) {
   const [login, setLogin] = useContext(loginState);
@@ -21,6 +23,15 @@ function Approval(props) {
       <p>Make sure to pay the approval fee. </p>Account No
       <p style={{ color: "tomato" }}> 5555-5555-5555-5555</p>
       Contact us at <a href={"mailTo:example@abc.com"}>example@abc.com</a>
+      <button
+        onClick={() => {
+          const auth = getAuth(firebaseApp);
+          auth.signOut();
+        }}
+        className="btn btn-warning"
+      >
+        LogOut
+      </button>
     </Wrap>
   );
 }

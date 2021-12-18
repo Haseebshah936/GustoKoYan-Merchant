@@ -3,7 +3,11 @@ import { withRouter } from "react-router";
 import styled from "styled-components";
 import { loginState, showHearder } from "../App";
 import { color } from "../Style/color";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { firebaseApp } from "../Firebase/config";
 import { Link } from "react-router-dom";
 
@@ -19,7 +23,16 @@ function Login(props) {
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          // setLogin(user);
+          if (!user.emailVerified) {
+            sendEmailVerification(auth.currentUser).then(() => {
+              alert(
+                "A verification link was sent to you Please verify your Email"
+              );
+            });
+            setLogin(false);
+          } else {
+            setLogin(user);
+          }
         })
         .catch((error) => {
           const errorCode = error.code;

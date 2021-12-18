@@ -27,6 +27,7 @@ function Profile(props) {
     phoneNumber: "",
     country: "",
     city: "",
+    categories: [],
   });
   const [errors, setErrors] = useState({
     resturantName: "",
@@ -38,10 +39,10 @@ function Profile(props) {
     image: "",
     country: "",
     city: "",
+    categories: [],
   });
   const [image, setImage] = useState("");
   const [url, setUrl] = useState("");
-  const hiddenFileInput = useRef("");
   const [profile, setProfile] = useContext(profileContext);
   const schema = Joi.object({
     ownerName: Joi.string().required().alphanum(),
@@ -53,8 +54,12 @@ function Profile(props) {
     country: Joi.string().required().label("Country Name"),
     city: Joi.string().required().label("City Name"),
     image: Joi.object().required().label("Image"),
+    categories: Joi.array().required().min(1),
   });
-
+  const hiddenFileInput = useRef("");
+  const dissMiss = useRef("");
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryNameError, setCategoryNameError] = useState("");
   useEffect(() => {
     setAccount({
       resturantName: profile?.resturantName,
@@ -65,6 +70,8 @@ function Profile(props) {
       phoneNumber: profile?.phoneNumber,
       country: profile?.country,
       city: profile?.city,
+      categories: profile?.categories,
+      image: profile?.image,
     });
     setUrl(profile?.image);
   }, [profile]);
@@ -92,25 +99,29 @@ function Profile(props) {
       image: "",
       country: "",
       city: "",
+      categories: [],
     });
     const error = schema.validate({ ...account, image }, { abortEarly: false });
     const erros = { ...errors };
+    const auth = getAuth(firebaseApp);
+    const user = auth.currentUser;
+    const storageRef = ref(storage, `merchantsImages/${user.uid}/${user.uid}`);
+    let occured = 0;
+    let count = 0;
     if (error.error) {
       for (let item of error.error.details) {
-        erros[item.path[0]] = item.message;
+        if (account[item.path[0]] === url) {
+          occured = 1;
+        } else {
+          erros[item.path[0]] = item.message;
+          count = 1;
+        }
       }
       setErrors(erros);
       console.log(error);
     } else {
-      const auth = getAuth(firebaseApp);
-      const user = auth.currentUser;
-      const storageRef = ref(
-        storage,
-        `merchantsImages/${user.uid}/${user.uid}`
-      );
       UploadImage(storageRef)
         .then(async (url) => {
-          console.log(account);
           await updateDoc(doc(db, "merchants", user.uid), {
             resturantName: account.resturantName,
             ownerName: account.ownerName,
@@ -121,22 +132,35 @@ function Profile(props) {
             city: account.city,
             country: account.country,
             image: url,
+            categories: account.categories,
           }).catch((error) => {
-            alert(error.code);
-          });
-          addDoc(collection(db, "merchants", user.uid, "reviews"), {
-            userId: "",
-            rating: 5,
-            message: "",
-          }).catch((error) => {
-            alert(error.code);
+            console.warn(error.code);
           });
         })
         .then(() => {
           props.history.replace("/");
         })
         .catch((error) => {
-          alert(error.code);
+          console.warn(error.code);
+        });
+    }
+    if (occured == 1 && count == 0) {
+      updateDoc(doc(db, "merchants", user.uid), {
+        resturantName: account.resturantName,
+        ownerName: account.ownerName,
+        location: account.location,
+        details: account.details,
+        websiteLink: account.websiteLink,
+        phoneNumber: account.phoneNumber,
+        city: account.city.toLowerCase(),
+        country: account.country,
+        categories: account.categories,
+      })
+        .then(() => {
+          props.history.replace("/");
+        })
+        .catch((error) => {
+          console.warn(error.code);
         });
     }
   };
@@ -148,6 +172,23 @@ function Profile(props) {
   const handleClick = (e) => {
     e.preventDefault();
     hiddenFileInput.current.click();
+  };
+  const handleAdd = () => {
+    if (categoryName === "") {
+      setCategoryNameError("Category Name is required");
+    } else {
+      setCategoryNameError("");
+      const accoun = { ...account };
+      accoun["categories"] = [...account.categories, categoryName];
+      setAccount(accoun);
+      setCategoryName("");
+      dissMiss.current.click();
+    }
+  };
+  const removeCategory = (index) => {
+    const accoun = { ...account };
+    accoun["categories"] = account.categories.filter((c, i) => i != index);
+    setAccount(accoun);
   };
   return (
     <Container className="container">
@@ -255,6 +296,82 @@ function Profile(props) {
             </div>
             <p style={{ color: "tomato" }}>{errors.details}</p>
           </TextInputContainer>
+          <Categories>
+            <h3>Categories</h3>
+            <CategoryList>
+              {account.categories.map((c, i) => (
+                <Category key={i}>
+                  <p>{c}</p>
+                  <p
+                    style={{
+                      cursor: "pointer",
+                      color: "black",
+                      marginLeft: "1rem",
+                      fontSize: "1rem",
+                    }}
+                    onClick={() => removeCategory(i)}
+                  >
+                    x
+                  </p>
+                </Category>
+              ))}
+            </CategoryList>
+            <p style={{ color: "tomato" }}>{errors.categories}</p>
+            <button
+              type="button"
+              className="btn btn-warning"
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+            >
+              Add Category
+            </button>
+
+            <div
+              className="modal fade"
+              id="exampleModal"
+              tabIndex="-1"
+              aria-labelledby="exampleModalLabel"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title" id="exampleModalLabel">
+                      Modal title
+                    </h5>
+                  </div>
+                  <div className="modal-body">
+                    <label htmlFor="details">Category Name</label>
+                    <input
+                      type="text"
+                      onChange={(t) => setCategoryName(t.currentTarget.value)}
+                      value={categoryName}
+                    />
+                    <p style={{ color: "tomato" }}>{categoryNameError}</p>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                      onClick={() => setCategoryName("")}
+                      ref={dissMiss}
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-warning"
+                      onClick={() => handleAdd()}
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Categories>
+
           <ImageInputContainer>
             <div>
               <h3>Company/Resturant's Logo</h3>
@@ -357,5 +474,41 @@ const SubmitContainer = styled.div`
     width: 35%;
     padding: 1rem;
     font-size: 1.5rem;
+  }
+`;
+const Categories = styled.div`
+  width: 100%;
+  margin-bottom: 1rem;
+  input {
+    border: 0.1rem solid rgba(0, 0, 0, 0.2);
+    width: 100%;
+  }
+  input:focus {
+    border-color: #ffce44;
+  }
+`;
+const CategoryList = styled.div`
+  width: 100%;
+  height: 20rem;
+  border: 0.1rem solid rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+`;
+const Category = styled.div`
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  background: ${color.menuBackground};
+  border: 0.1rem solid rgba(0, 0, 0, 0.2);
+  height: 2.5rem;
+  border-radius: 5%;
+  min-width: 5rem;
+  color: black;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  p {
+    margin: 0rem;
   }
 `;
